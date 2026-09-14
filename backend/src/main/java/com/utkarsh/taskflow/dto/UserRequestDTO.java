@@ -19,6 +19,4 @@ public class UserRequestDTO {
 	@NotBlank(message = "Password cannot be empty")
 	private String password;
 	
-	@NotNull(message = "Role must be provided")
-	private Role role;
 }
