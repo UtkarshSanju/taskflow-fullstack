@@ -4,6 +4,7 @@ A RESTful Task Management System built with Spring Boot, developed to learn Spri
 
 ## Features
 
+- **Authentication** — JWT-based login; passwords hashed with BCrypt; self-registration is hardened so users can't assign themselves a role
 - **Task Management** — Create, read, update, delete tasks with title, description, status, and due date
 - **User Management** — Create, read, update, delete users with role-based accounts (ADMIN / MEMBER)
 - **Task Assignment** — Assign and reassign tasks to users (Many-to-One relationship)
@@ -16,7 +17,8 @@ A RESTful Task Management System built with Spring Boot, developed to learn Spri
 ## Tech Stack
 
 - **Java 21**
-- **Spring Boot** (Spring Web, Spring Data JPA)
+- **Spring Boot** (Spring Web, Spring Data JPA, Spring Security)
+- **JWT** (jjwt) for stateless authentication
 - **MySQL**
 - **Lombok**
 - **Maven**
@@ -32,10 +34,19 @@ src/main/java/com/utkarsh/taskflow/
  ├── dto/           # Request/Response DTOs
  ├── mapper/        # Entity <-> DTO mapping
  ├── enums/         # Status, Role enums
+ ├── config/        # SecurityConfig (filter chain, password encoder)
+ ├── security/      # JwtUtil, JwtAuthFilter
  └── exception/     # Custom exceptions + global exception handler
 ```
 
 ## API Endpoints
+
+### Auth
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/auth/login` | Log in with email/password, returns a JWT + user info |
+
+All endpoints below (except `POST /users` for registration) require a valid JWT sent as `Authorization: Bearer <token>`.
 
 ### Tasks
 | Method | Endpoint | Description |
@@ -62,7 +73,7 @@ src/main/java/com/utkarsh/taskflow/
 1. Clone the repo
    ```bash
    git clone <your-repo-url>
-   cd taskflow
+   cd taskflow-fullstack/backend
    ```
 
 2. Create a MySQL database:
@@ -70,10 +81,12 @@ src/main/java/com/utkarsh/taskflow/
    CREATE DATABASE taskflow_db;
    ```
 
-3. Set the following environment variables (do not hardcode credentials in `application.properties`):
-   ```
-   DB_USERNAME=your_mysql_username
-   DB_PASSWORD=your_mysql_password
+3. Copy `src/main/resources/application-example.properties` to `src/main/resources/application.properties` and fill in your actual MySQL credentials and a JWT secret (this file is gitignored, so it stays local):
+   ```properties
+   spring.datasource.username=your_mysql_username
+   spring.datasource.password=your_mysql_password
+   jwt.secret=your_jwt_secret_key
+   jwt.expiration=3600000
    ```
 
 4. Run the application:
@@ -85,8 +98,10 @@ src/main/java/com/utkarsh/taskflow/
 
 ## Roadmap
 
-- [ ] Spring Security + JWT authentication
-- [ ] Role-based authorization (ADMIN vs MEMBER permissions)
+- [x] Spring Security + JWT authentication
+- [x] Password hashing with BCrypt
+- [x] Task status update endpoint (PATCH)
+- [ ] Role-based authorization (ADMIN vs MEMBER permissions on specific endpoints)
 - [ ] Filtering/search on tasks
 - [ ] Pagination
 - [ ] React frontend
